@@ -3,23 +3,23 @@ package fuzs.combatnouveau;
 import fuzs.combatnouveau.config.ClientConfig;
 import fuzs.combatnouveau.config.CommonConfig;
 import fuzs.combatnouveau.config.ServerConfig;
-import fuzs.combatnouveau.handler.ItemComponentsHandler;
 import fuzs.combatnouveau.handler.ClassicCombatHandler;
 import fuzs.combatnouveau.handler.CombatTestHandler;
+import fuzs.combatnouveau.handler.ItemComponentsHandler;
 import fuzs.combatnouveau.init.ModRegistry;
 import fuzs.combatnouveau.network.client.ServerboundSweepAttackMessage;
 import fuzs.combatnouveau.network.client.ServerboundSwingArmMessage;
-import fuzs.puzzleslib.api.config.v3.ConfigHolder;
-import fuzs.puzzleslib.api.core.v1.ModConstructor;
-import fuzs.puzzleslib.api.core.v1.context.EntityAttributesContext;
-import fuzs.puzzleslib.api.core.v1.context.PackRepositorySourcesContext;
-import fuzs.puzzleslib.api.core.v1.context.PayloadTypesContext;
-import fuzs.puzzleslib.api.event.v1.FinalizeItemComponentsCallback;
-import fuzs.puzzleslib.api.event.v1.entity.ProjectileImpactCallback;
-import fuzs.puzzleslib.api.event.v1.entity.living.LivingHurtCallback;
-import fuzs.puzzleslib.api.event.v1.entity.living.LivingKnockBackCallback;
-import fuzs.puzzleslib.api.event.v1.entity.living.ShieldBlockCallback;
-import fuzs.puzzleslib.api.event.v1.entity.player.PlayerTickEvents;
+import fuzs.puzzleslib.common.api.config.v3.ConfigHolder;
+import fuzs.puzzleslib.common.api.core.v1.ModConstructor;
+import fuzs.puzzleslib.common.api.core.v1.context.EntityAttributesContext;
+import fuzs.puzzleslib.common.api.core.v1.context.ItemComponentsContext;
+import fuzs.puzzleslib.common.api.core.v1.context.PackRepositorySourcesContext;
+import fuzs.puzzleslib.common.api.core.v1.context.PayloadTypesContext;
+import fuzs.puzzleslib.common.api.event.v1.entity.ProjectileImpactCallback;
+import fuzs.puzzleslib.common.api.event.v1.entity.living.LivingHurtCallback;
+import fuzs.puzzleslib.common.api.event.v1.entity.living.LivingKnockBackCallback;
+import fuzs.puzzleslib.common.api.event.v1.entity.living.ShieldBlockCallback;
+import fuzs.puzzleslib.common.api.event.v1.entity.player.PlayerTickEvents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
@@ -45,7 +45,6 @@ public class CombatNouveau implements ModConstructor {
     }
 
     private static void registerEventHandlers() {
-        FinalizeItemComponentsCallback.EVENT.register(ItemComponentsHandler::onFinalizeItemComponents);
         LivingKnockBackCallback.EVENT.register(ClassicCombatHandler::onLivingKnockBack);
         ProjectileImpactCallback.EVENT.register(ClassicCombatHandler::onProjectileImpact);
         PlayerTickEvents.START.register(CombatTestHandler::onStartPlayerTick);
@@ -69,6 +68,11 @@ public class CombatNouveau implements ModConstructor {
         if (CONFIG.get(CommonConfig.class).doublePlayerAttackStrength) {
             context.registerAttribute(EntityType.PLAYER, Attributes.ATTACK_DAMAGE, 2.0);
         }
+    }
+
+    @Override
+    public void onRegisterItemComponentPatches(ItemComponentsContext context) {
+        ItemComponentsHandler.onRegisterItemComponentPatches(context);
     }
 
     public static Identifier id(String path) {

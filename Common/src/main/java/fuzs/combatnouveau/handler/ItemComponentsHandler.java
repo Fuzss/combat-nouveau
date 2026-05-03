@@ -1,14 +1,17 @@
 package fuzs.combatnouveau.handler;
 
+import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import fuzs.combatnouveau.CombatNouveau;
 import fuzs.combatnouveau.config.CommonConfig;
-import fuzs.puzzleslib.api.config.v3.serialization.ConfigDataSet;
+import fuzs.puzzleslib.common.api.config.v3.serialization.ConfigDataSet;
+import fuzs.puzzleslib.common.api.core.v1.context.ItemComponentsContext;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
@@ -24,8 +27,6 @@ import net.minecraft.world.item.equipment.ArmorType;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class ItemComponentsHandler {
@@ -38,74 +39,78 @@ public class ItemComponentsHandler {
                     .map((String nameValue) -> "armor." + nameValue)
                     .map(Identifier::withDefaultNamespace)).collect(ImmutableSet.toImmutableSet());
 
-    public static void onFinalizeItemComponents(Item item, Consumer<Function<DataComponentMap, DataComponentPatch>> consumer) {
+    public static void onRegisterItemComponentPatches(ItemComponentsContext context) {
         if (!CombatNouveau.CONFIG.getHolder(CommonConfig.class).isAvailable()) {
             return;
         }
 
         if (CombatNouveau.CONFIG.get(CommonConfig.class).increaseStackSize) {
-            consumer.accept((DataComponentMap dataComponents) -> {
-                return getMaxStackSizePatch(item);
-            });
+            context.registerItemComponentsPatch(ItemComponentsHandler::isThrowableItem,
+                    (DataComponentGetter components, DataComponentMap.Builder builder, HolderLookup.Provider registries, Item item) -> {
+                        builder.set(DataComponents.MAX_STACK_SIZE, 64);
+                    });
+            context.registerItemComponentsPatch(ItemComponentsHandler::isPotion,
+                    (DataComponentGetter components, DataComponentMap.Builder builder, HolderLookup.Provider registries, Item item) -> {
+                        builder.set(DataComponents.MAX_STACK_SIZE, 16);
+                        if (isThrowablePotion(item)) {
+                            builder.set(DataComponents.USE_COOLDOWN,
+                                    new UseCooldown(0.35F, Optional.of(CombatNouveau.id("potions"))));
+                        }
+                    });
         }
 
-        consumer.accept((DataComponentMap dataComponents) -> {
-            return getUseCooldownPatch(item);
-        });
+        if (CombatNouveau.CONFIG.get(CommonConfig.class).throwablesDelay) {
+            context.registerItemComponentsPatch(ItemComponentsHandler::isThrowableItem,
+                    (DataComponentGetter components, DataComponentMap.Builder builder, HolderLookup.Provider registries, Item item) -> {
+                        builder.set(DataComponents.USE_COOLDOWN,
+                                new UseCooldown(0.2F, Optional.of(CombatNouveau.id("throwables"))));
+                    });
+        }
 
         if (CombatNouveau.CONFIG.get(CommonConfig.class).noItemDurabilityPenalty) {
-            consumer.accept((DataComponentMap dataComponents) -> {
-                DataComponentPatch weaponPatch = getWeaponPatch(dataComponents);
-                if (weaponPatch != null) {
-                    return weaponPatch;
-                } else {
-                    DataComponentPatch toolPatch = getToolPatch(dataComponents);
-                    return toolPatch != null ? toolPatch : DataComponentPatch.EMPTY;
-                }
-            });
+            context.registerItemComponentsPatch(Predicates.alwaysTrue(),
+                    (DataComponentGetter components, DataComponentMap.Builder builder, HolderLookup.Provider registries, Item item) -> {
+                        Weapon weapon = modifyWeaponComponent(components.get(DataComponents.WEAPON));
+                        if (weapon != null) {
+                            builder.set(DataComponents.WEAPON, weapon);
+                        } else {
+                            Tool tool = modifyToolComponent(components.get(DataComponents.TOOL));
+                            if (tool != null) {
+                                builder.set(DataComponents.TOOL, tool);
+                            }
+                        }
+                    });
         }
 
         if (CombatNouveau.CONFIG.get(CommonConfig.class).fastDrinking) {
-            consumer.accept(ItemComponentsHandler::getConsumablePatch);
+            context.registerItemComponentsPatch(Predicates.alwaysTrue(),
+                    (DataComponentGetter components, DataComponentMap.Builder builder, HolderLookup.Provider registries, Item item) -> {
+                        Consumable consumable = modifyConsumableComponent(components.get(DataComponents.CONSUMABLE));
+                        if (consumable != null) {
+                            builder.set(DataComponents.CONSUMABLE, consumable);
+                        }
+                    });
         }
 
-        if (item == Items.SHIELD) {
-            consumer.accept(ItemComponentsHandler::getBlocksAttacksPatch);
-        }
-
-        consumer.accept((DataComponentMap dataComponents) -> {
-            return getAttributeModifiersPatch(item, dataComponents);
-        });
+        context.registerItemComponentsPatch(Items.SHIELD,
+                (DataComponentGetter components, DataComponentMap.Builder builder, HolderLookup.Provider registries, Item item) -> {
+                    BlocksAttacks blocksAttacks = modifyBlocksAttacksComponent(components.get(DataComponents.BLOCKS_ATTACKS));
+                    if (blocksAttacks != null) {
+                        builder.set(DataComponents.BLOCKS_ATTACKS, blocksAttacks);
+                    }
+                });
+        context.registerItemComponentsPatch(Predicates.alwaysTrue(),
+                (DataComponentGetter components, DataComponentMap.Builder builder, HolderLookup.Provider registries, Item item) -> {
+                    ItemAttributeModifiers itemAttributeModifiers = modifyItemAttributeModifiersComponent(item,
+                            components);
+                    if (itemAttributeModifiers != null) {
+                        builder.set(DataComponents.ATTRIBUTE_MODIFIERS, itemAttributeModifiers);
+                    }
+                });
     }
 
-    private static DataComponentPatch getMaxStackSizePatch(Item item) {
-        if (item == Items.SNOWBALL || isEgg(item)) {
-            return DataComponentPatch.builder().set(DataComponents.MAX_STACK_SIZE, 64).build();
-        } else if (isPotion(item)) {
-            return DataComponentPatch.builder().set(DataComponents.MAX_STACK_SIZE, 16).build();
-        } else {
-            return DataComponentPatch.EMPTY;
-        }
-    }
-
-    private static DataComponentPatch getUseCooldownPatch(Item item) {
-        if (item == Items.SNOWBALL || isEgg(item)) {
-            if (CombatNouveau.CONFIG.get(CommonConfig.class).throwablesDelay) {
-                return DataComponentPatch.builder()
-                        .set(DataComponents.USE_COOLDOWN,
-                                new UseCooldown(0.2F, Optional.of(CombatNouveau.id("throwables"))))
-                        .build();
-            }
-        } else if (isThrowablePotion(item)) {
-            if (CombatNouveau.CONFIG.get(CommonConfig.class).increaseStackSize) {
-                return DataComponentPatch.builder()
-                        .set(DataComponents.USE_COOLDOWN,
-                                new UseCooldown(0.35F, Optional.of(CombatNouveau.id("potions"))))
-                        .build();
-            }
-        }
-
-        return DataComponentPatch.EMPTY;
+    private static boolean isThrowableItem(Item item) {
+        return item == Items.SNOWBALL || isEgg(item);
     }
 
     private static boolean isEgg(Item item) {
@@ -120,73 +125,57 @@ public class ItemComponentsHandler {
         return item == Items.SPLASH_POTION || item == Items.LINGERING_POTION;
     }
 
-    private static @Nullable DataComponentPatch getWeaponPatch(DataComponentMap dataComponents) {
-        Weapon weapon = dataComponents.get(DataComponents.WEAPON);
+    private static @Nullable Weapon modifyWeaponComponent(Weapon weapon) {
         if (weapon != null && weapon.itemDamagePerAttack() == 2) {
-            return DataComponentPatch.builder()
-                    .set(DataComponents.WEAPON, new Weapon(1, weapon.disableBlockingForSeconds()))
-                    .build();
+            return new Weapon(1, weapon.disableBlockingForSeconds());
         } else {
             return null;
         }
     }
 
-    private static @Nullable DataComponentPatch getToolPatch(DataComponentMap dataComponents) {
-        Tool tool = dataComponents.get(DataComponents.TOOL);
+    private static @Nullable Tool modifyToolComponent(Tool tool) {
         if (tool != null && tool.damagePerBlock() == 2) {
-            return DataComponentPatch.builder()
-                    .set(DataComponents.TOOL,
-                            new Tool(tool.rules(), tool.defaultMiningSpeed(), 1, tool.canDestroyBlocksInCreative()))
-                    .build();
+            return new Tool(tool.rules(), tool.defaultMiningSpeed(), 1, tool.canDestroyBlocksInCreative());
         } else {
             return null;
         }
     }
 
-    private static DataComponentPatch getConsumablePatch(DataComponentMap dataComponents) {
-        Consumable consumable = dataComponents.get(DataComponents.CONSUMABLE);
+    private static @Nullable Consumable modifyConsumableComponent(@Nullable Consumable consumable) {
         if (consumable != null && consumable.animation() == ItemUseAnimation.DRINK) {
-            return DataComponentPatch.builder()
-                    .set(DataComponents.CONSUMABLE,
-                            new Consumable(1.0F,
-                                    consumable.animation(),
-                                    consumable.sound(),
-                                    consumable.hasConsumeParticles(),
-                                    consumable.onConsumeEffects()))
-                    .build();
+            return new Consumable(1.0F,
+                    consumable.animation(),
+                    consumable.sound(),
+                    consumable.hasConsumeParticles(),
+                    consumable.onConsumeEffects());
         } else {
-            return DataComponentPatch.EMPTY;
+            return null;
         }
     }
 
-    private static DataComponentPatch getBlocksAttacksPatch(DataComponentMap dataComponents) {
-        BlocksAttacks blocksAttacks = dataComponents.get(DataComponents.BLOCKS_ATTACKS);
+    private static @Nullable BlocksAttacks modifyBlocksAttacksComponent(@Nullable BlocksAttacks blocksAttacks) {
         if (blocksAttacks != null) {
-            return DataComponentPatch.builder()
-                    .set(DataComponents.BLOCKS_ATTACKS,
-                            new BlocksAttacks(CombatNouveau.CONFIG.get(CommonConfig.class).removeShieldDelay ? 0.0F :
-                                    blocksAttacks.blockDelaySeconds(),
-                                    blocksAttacks.disableCooldownScale(),
-                                    ImmutableList.copyOf(Lists.transform(blocksAttacks.damageReductions(),
-                                            (BlocksAttacks.DamageReduction damageReduction) -> {
-                                                return new BlocksAttacks.DamageReduction((float) CombatNouveau.CONFIG.get(
-                                                        CommonConfig.class).horizontalBlockingAngle,
-                                                        damageReduction.type(),
-                                                        damageReduction.base(),
-                                                        damageReduction.factor());
-                                            })),
-                                    blocksAttacks.itemDamage(),
-                                    blocksAttacks.bypassedBy(),
-                                    blocksAttacks.blockSound(),
-                                    blocksAttacks.disableSound()))
-                    .build();
+            return new BlocksAttacks(CombatNouveau.CONFIG.get(CommonConfig.class).removeShieldDelay ? 0.0F :
+                    blocksAttacks.blockDelaySeconds(),
+                    blocksAttacks.disableCooldownScale(),
+                    ImmutableList.copyOf(Lists.transform(blocksAttacks.damageReductions(),
+                            (BlocksAttacks.DamageReduction damageReduction) -> {
+                                return new BlocksAttacks.DamageReduction((float) CombatNouveau.CONFIG.get(CommonConfig.class).horizontalBlockingAngle,
+                                        damageReduction.type(),
+                                        damageReduction.base(),
+                                        damageReduction.factor());
+                            })),
+                    blocksAttacks.itemDamage(),
+                    blocksAttacks.bypassedBy(),
+                    blocksAttacks.blockSound(),
+                    blocksAttacks.disableSound());
         } else {
-            return DataComponentPatch.EMPTY;
+            return null;
         }
     }
 
-    private static DataComponentPatch getAttributeModifiersPatch(Item item, DataComponentMap dataComponents) {
-        List<ItemAttributeModifiers.Entry> itemAttributeModifiers = dataComponents.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS,
+    private static @Nullable ItemAttributeModifiers modifyItemAttributeModifiersComponent(Item item, DataComponentGetter components) {
+        List<ItemAttributeModifiers.Entry> itemAttributeModifiers = components.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS,
                 ItemAttributeModifiers.EMPTY).modifiers();
         itemAttributeModifiers = setAttributeValue(item,
                 itemAttributeModifiers,
@@ -205,7 +194,7 @@ public class ItemComponentsHandler {
                 CombatNouveau.CONFIG.get(CommonConfig.class).entityInteractionRangeOverrides);
         if (itemAttributeModifiers == itemAttributeModifiers2) {
             if (CombatNouveau.CONFIG.get(CommonConfig.class).additionalEntityInteractionRange) {
-                OptionalDouble attackRangeBonus = getAttackRangeBonus(item, dataComponents);
+                OptionalDouble attackRangeBonus = getAttackRangeBonus(item, components);
                 if (attackRangeBonus.isPresent()) {
                     itemAttributeModifiers = setAttributeValue(itemAttributeModifiers,
                             Attributes.ENTITY_INTERACTION_RANGE,
@@ -216,14 +205,12 @@ public class ItemComponentsHandler {
         } else {
             itemAttributeModifiers = itemAttributeModifiers2;
         }
-        if (dataComponents.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY).modifiers()
+
+        if (components.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY).modifiers()
                 != itemAttributeModifiers) {
-            return DataComponentPatch.builder()
-                    .set(DataComponents.ATTRIBUTE_MODIFIERS,
-                            new ItemAttributeModifiers(ImmutableList.copyOf(itemAttributeModifiers)))
-                    .build();
+            return new ItemAttributeModifiers(ImmutableList.copyOf(itemAttributeModifiers));
         } else {
-            return DataComponentPatch.EMPTY;
+            return null;
         }
     }
 
@@ -256,7 +243,7 @@ public class ItemComponentsHandler {
         return itemAttributeModifiers;
     }
 
-    private static OptionalDouble getAttackRangeBonus(Item item, DataComponentMap dataComponents) {
+    private static OptionalDouble getAttackRangeBonus(Item item, DataComponentGetter dataComponents) {
         if (item == Items.TRIDENT || ToolComponentsHelper.hasComponentsForBlocks(dataComponents,
                 BlockTags.MINEABLE_WITH_HOE)) {
             return OptionalDouble.of(1.0);

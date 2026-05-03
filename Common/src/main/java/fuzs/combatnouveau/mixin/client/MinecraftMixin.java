@@ -6,7 +6,7 @@ import fuzs.combatnouveau.config.ServerConfig;
 import fuzs.combatnouveau.helper.SweepAttackHelper;
 import fuzs.combatnouveau.network.client.ServerboundSweepAttackMessage;
 import fuzs.combatnouveau.network.client.ServerboundSwingArmMessage;
-import fuzs.puzzleslib.api.network.v4.MessageSender;
+import fuzs.puzzleslib.common.api.network.v4.MessageSender;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;

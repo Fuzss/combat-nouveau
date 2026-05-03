@@ -1,9 +1,10 @@
 {
+    "minecraft": "26.1.2",
     "mod": {
         "id": "combatnouveau",
         "group": "fuzs.combatnouveau",
         "name": "Combat Nouveau",
-        "version": "21.11.1",
+        "version": "26.1.0",
         "authors": [
             "Fuzs"
         ],
@@ -36,13 +37,13 @@
     ],
     "links": [
         {
-            "name": "github",
-            "slug": "combatnouveau"
-        },
-        {
             "name": "curseforge",
             "slug": "combat-nouveau",
             "id": "969425"
+        },
+        {
+            "name": "github",
+            "slug": "combat-nouveau"
         },
         {
             "name": "modrinth",

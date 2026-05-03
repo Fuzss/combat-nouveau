@@ -2,7 +2,7 @@ package fuzs.combatnouveau.client.handler;
 
 import fuzs.combatnouveau.CombatNouveau;
 import fuzs.combatnouveau.config.ServerConfig;
-import fuzs.puzzleslib.api.event.v1.core.EventResult;
+import fuzs.puzzleslib.common.api.event.v1.core.EventResult;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.phys.HitResult;
@@ -33,6 +33,7 @@ public class AutoAttackHandler {
                 return EventResult.INTERRUPT;
             }
         }
+
         return EventResult.PASS;
     }
 }

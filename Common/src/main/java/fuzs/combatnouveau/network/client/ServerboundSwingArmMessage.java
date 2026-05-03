@@ -1,8 +1,8 @@
 package fuzs.combatnouveau.network.client;
 
-import fuzs.puzzleslib.api.network.v4.codec.ExtraStreamCodecs;
-import fuzs.puzzleslib.api.network.v4.message.MessageListener;
-import fuzs.puzzleslib.api.network.v4.message.play.ServerboundPlayMessage;
+import fuzs.puzzleslib.common.api.network.v4.codec.ExtraStreamCodecs;
+import fuzs.puzzleslib.common.api.network.v4.message.MessageListener;
+import fuzs.puzzleslib.common.api.network.v4.message.play.ServerboundPlayMessage;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.InteractionHand;

@@ -4,12 +4,12 @@ import fuzs.combatnouveau.CombatNouveau;
 import fuzs.combatnouveau.client.handler.AutoAttackHandler;
 import fuzs.combatnouveau.client.handler.RenderOffhandItemHandler;
 import fuzs.combatnouveau.client.handler.ShieldIndicatorHandler;
-import fuzs.puzzleslib.api.client.core.v1.ClientModConstructor;
-import fuzs.puzzleslib.api.client.core.v1.context.GuiLayersContext;
-import fuzs.puzzleslib.api.client.event.v1.ClientTickEvents;
-import fuzs.puzzleslib.api.client.event.v1.entity.player.InteractionInputEvents;
-import fuzs.puzzleslib.api.client.event.v1.gui.RenderGuiEvents;
-import fuzs.puzzleslib.api.client.event.v1.renderer.RenderHandEvents;
+import fuzs.puzzleslib.common.api.client.core.v1.ClientModConstructor;
+import fuzs.puzzleslib.common.api.client.core.v1.context.GuiLayersContext;
+import fuzs.puzzleslib.common.api.client.event.v1.ClientTickEvents;
+import fuzs.puzzleslib.common.api.client.event.v1.entity.player.InteractionInputEvents;
+import fuzs.puzzleslib.common.api.client.event.v1.gui.RenderGuiEvents;
+import fuzs.puzzleslib.common.api.client.event.v1.renderer.RenderHandEvents;
 
 public class CombatNouveauClient implements ClientModConstructor {
 

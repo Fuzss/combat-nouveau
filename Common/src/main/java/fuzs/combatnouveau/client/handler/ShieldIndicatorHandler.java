@@ -6,7 +6,7 @@ import net.minecraft.client.AttackIndicatorStatus;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.HumanoidArm;
@@ -18,7 +18,7 @@ public class ShieldIndicatorHandler {
     @Nullable
     private static AttackIndicatorStatus attackIndicator = null;
 
-    public static void onBeforeRenderGui(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+    public static void onBeforeRenderGui(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
         if (!CombatNouveau.CONFIG.get(ClientConfig.class).shieldIndicator) return;
         if (attackIndicator == null && Minecraft.getInstance().player.isBlocking()) {
             Options options = Minecraft.getInstance().options;
@@ -27,14 +27,14 @@ public class ShieldIndicatorHandler {
         }
     }
 
-    public static void onAfterRenderGui(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+    public static void onAfterRenderGui(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
         if (attackIndicator != null) {
             Minecraft.getInstance().options.attackIndicator().set(attackIndicator);
             attackIndicator = null;
         }
     }
 
-    public static void renderCrosshairBlockingIndicator(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+    public static void renderCrosshairBlockingIndicator(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
         if (attackIndicator == AttackIndicatorStatus.CROSSHAIR) {
             if (Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
                 int posX = guiGraphics.guiWidth() / 2 - 8;
@@ -44,7 +44,7 @@ public class ShieldIndicatorHandler {
         }
     }
 
-    public static void renderHotbarBlockingIndicator(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+    public static void renderHotbarBlockingIndicator(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker) {
         if (attackIndicator == AttackIndicatorStatus.HOTBAR) {
             int posX;
             if (Minecraft.getInstance().player.getMainArm() == HumanoidArm.LEFT) {
@@ -52,6 +52,7 @@ public class ShieldIndicatorHandler {
             } else {
                 posX = guiGraphics.guiWidth() / 2 + 91 + 6;
             }
+
             int posY = guiGraphics.guiHeight() - 20;
             guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GUI_ICONS_LOCATION, posX, posY, 18, 0, 18, 18, 256, 256);
         }

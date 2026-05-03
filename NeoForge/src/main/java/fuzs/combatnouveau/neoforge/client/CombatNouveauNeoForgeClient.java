@@ -2,7 +2,7 @@ package fuzs.combatnouveau.neoforge.client;
 
 import fuzs.combatnouveau.CombatNouveau;
 import fuzs.combatnouveau.client.CombatNouveauClient;
-import fuzs.puzzleslib.api.client.core.v1.ClientModConstructor;
+import fuzs.puzzleslib.common.api.client.core.v1.ClientModConstructor;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.common.Mod;
 

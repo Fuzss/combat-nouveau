@@ -1,7 +1,7 @@
 package fuzs.combatnouveau.config;
 
-import fuzs.puzzleslib.api.config.v3.Config;
-import fuzs.puzzleslib.api.config.v3.ConfigCore;
+import fuzs.puzzleslib.common.api.config.v3.Config;
+import fuzs.puzzleslib.common.api.config.v3.ConfigCore;
 import net.minecraft.world.item.ItemUseAnimation;
 
 import java.util.Arrays;

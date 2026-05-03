@@ -3,7 +3,7 @@ package fuzs.combatnouveau.helper;
 import fuzs.combatnouveau.CombatNouveau;
 import fuzs.combatnouveau.config.ServerConfig;
 import fuzs.combatnouveau.services.CommonAbstractions;
-import fuzs.puzzleslib.api.item.v2.ToolTypeHelper;
+import fuzs.puzzleslib.common.api.item.v2.ToolTypeHelper;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -63,7 +63,6 @@ public class SweepAttackHelper {
                         player.getSoundSource(),
                         1.0f,
                         1.0f);
-
         if (player.level() instanceof ServerLevel serverLevel) {
             float sweepingAttackDamage =
                     1.0F + (float) player.getAttributeValue(Attributes.SWEEPING_DAMAGE_RATIO) * attackDamage;

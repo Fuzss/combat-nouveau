@@ -2,8 +2,8 @@ package fuzs.combatnouveau.handler;
 
 import fuzs.combatnouveau.CombatNouveau;
 import fuzs.combatnouveau.config.ServerConfig;
-import fuzs.puzzleslib.api.event.v1.core.EventResult;
-import fuzs.puzzleslib.api.event.v1.data.MutableDouble;
+import fuzs.puzzleslib.common.api.event.v1.core.EventResult;
+import fuzs.puzzleslib.common.api.event.v1.data.MutableDouble;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.projectile.Projectile;

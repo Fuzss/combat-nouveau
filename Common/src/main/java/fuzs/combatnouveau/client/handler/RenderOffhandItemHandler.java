@@ -3,7 +3,7 @@ package fuzs.combatnouveau.client.handler;
 import com.mojang.blaze3d.vertex.PoseStack;
 import fuzs.combatnouveau.CombatNouveau;
 import fuzs.combatnouveau.config.ClientConfig;
-import fuzs.puzzleslib.api.event.v1.core.EventResult;
+import fuzs.puzzleslib.common.api.event.v1.core.EventResult;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
