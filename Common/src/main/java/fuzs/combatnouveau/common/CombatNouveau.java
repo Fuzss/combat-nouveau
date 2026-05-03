@@ -1,0 +1,81 @@
+package fuzs.combatnouveau.common;
+
+import fuzs.combatnouveau.common.config.ClientConfig;
+import fuzs.combatnouveau.common.config.CommonConfig;
+import fuzs.combatnouveau.common.config.ServerConfig;
+import fuzs.combatnouveau.common.handler.ClassicCombatHandler;
+import fuzs.combatnouveau.common.handler.CombatTestHandler;
+import fuzs.combatnouveau.common.handler.ItemComponentsHandler;
+import fuzs.combatnouveau.common.init.ModRegistry;
+import fuzs.combatnouveau.common.network.client.ServerboundSweepAttackMessage;
+import fuzs.combatnouveau.common.network.client.ServerboundSwingArmMessage;
+import fuzs.puzzleslib.common.api.config.v3.ConfigHolder;
+import fuzs.puzzleslib.common.api.core.v1.ModConstructor;
+import fuzs.puzzleslib.common.api.core.v1.context.EntityAttributesContext;
+import fuzs.puzzleslib.common.api.core.v1.context.ItemComponentsContext;
+import fuzs.puzzleslib.common.api.core.v1.context.PackRepositorySourcesContext;
+import fuzs.puzzleslib.common.api.core.v1.context.PayloadTypesContext;
+import fuzs.puzzleslib.common.api.event.v1.entity.ProjectileImpactCallback;
+import fuzs.puzzleslib.common.api.event.v1.entity.living.LivingHurtCallback;
+import fuzs.puzzleslib.common.api.event.v1.entity.living.LivingKnockBackCallback;
+import fuzs.puzzleslib.common.api.event.v1.entity.living.ShieldBlockCallback;
+import fuzs.puzzleslib.common.api.event.v1.entity.player.PlayerTickEvents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class CombatNouveau implements ModConstructor {
+    public static final String MOD_ID = "combatnouveau";
+    public static final String MOD_NAME = "Combat Nouveau";
+    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
+
+    public static final ConfigHolder CONFIG = ConfigHolder.builder(MOD_ID)
+            .client(ClientConfig.class)
+            .common(CommonConfig.class)
+            .server(ServerConfig.class);
+    public static final Identifier WEAK_SWEEPING_EDGE_ID = id("weak_sweeping_edge");
+
+    @Override
+    public void onConstructMod() {
+        ModRegistry.bootstrap();
+        registerEventHandlers();
+    }
+
+    private static void registerEventHandlers() {
+        LivingKnockBackCallback.EVENT.register(ClassicCombatHandler::onLivingKnockBack);
+        ProjectileImpactCallback.EVENT.register(ClassicCombatHandler::onProjectileImpact);
+        PlayerTickEvents.START.register(CombatTestHandler::onStartPlayerTick);
+        LivingHurtCallback.EVENT.register(CombatTestHandler::onLivingHurt);
+        ShieldBlockCallback.EVENT.register(CombatTestHandler::onShieldBlock);
+    }
+
+    @Override
+    public void onRegisterPayloadTypes(PayloadTypesContext context) {
+        context.playToServer(ServerboundSweepAttackMessage.class, ServerboundSweepAttackMessage.STREAM_CODEC);
+        context.playToServer(ServerboundSwingArmMessage.class, ServerboundSwingArmMessage.STREAM_CODEC);
+    }
+
+    @Override
+    public void onAddDataPackFinders(PackRepositorySourcesContext context) {
+        context.registerBuiltInPack(WEAK_SWEEPING_EDGE_ID, Component.literal("Halve Sweeping Damage"), false);
+    }
+
+    @Override
+    public void onRegisterEntityAttributes(EntityAttributesContext context) {
+        if (CONFIG.get(CommonConfig.class).doublePlayerAttackStrength) {
+            context.registerAttribute(EntityType.PLAYER, Attributes.ATTACK_DAMAGE, 2.0);
+        }
+    }
+
+    @Override
+    public void onRegisterItemComponentPatches(ItemComponentsContext context) {
+        ItemComponentsHandler.onRegisterItemComponentPatches(context);
+    }
+
+    public static Identifier id(String path) {
+        return Identifier.fromNamespaceAndPath(MOD_ID, path);
+    }
+}

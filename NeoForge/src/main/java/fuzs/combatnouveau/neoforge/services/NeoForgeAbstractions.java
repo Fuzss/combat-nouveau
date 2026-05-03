@@ -1,6 +1,6 @@
 package fuzs.combatnouveau.neoforge.services;
 
-import fuzs.combatnouveau.services.CommonAbstractions;
+import fuzs.combatnouveau.common.services.CommonAbstractions;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
