@@ -1,4 +1,4 @@
-package fuzs.combatnouveau.common.helper;
+package fuzs.combatnouveau.common.util;
 
 import fuzs.combatnouveau.common.CombatNouveau;
 import fuzs.combatnouveau.common.config.ServerConfig;

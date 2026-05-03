@@ -1,6 +1,6 @@
 package fuzs.combatnouveau.common.network.client;
 
-import fuzs.combatnouveau.common.helper.SweepAttackHelper;
+import fuzs.combatnouveau.common.util.SweepAttackHelper;
 import fuzs.puzzleslib.common.api.network.v4.message.MessageListener;
 import fuzs.puzzleslib.common.api.network.v4.message.play.ServerboundPlayMessage;
 import io.netty.buffer.ByteBuf;

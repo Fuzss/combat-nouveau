@@ -3,7 +3,7 @@ package fuzs.combatnouveau.common.mixin.client;
 import fuzs.combatnouveau.common.CombatNouveau;
 import fuzs.combatnouveau.common.client.handler.AutoAttackHandler;
 import fuzs.combatnouveau.common.config.ServerConfig;
-import fuzs.combatnouveau.common.helper.SweepAttackHelper;
+import fuzs.combatnouveau.common.util.SweepAttackHelper;
 import fuzs.combatnouveau.common.network.client.ServerboundSweepAttackMessage;
 import fuzs.combatnouveau.common.network.client.ServerboundSwingArmMessage;
 import fuzs.puzzleslib.common.api.network.v4.MessageSender;

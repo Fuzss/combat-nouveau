@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import fuzs.combatnouveau.common.CombatNouveau;
 import fuzs.combatnouveau.common.config.CommonConfig;
+import fuzs.combatnouveau.common.util.ToolComponentsHelper;
 import fuzs.puzzleslib.common.api.config.v3.serialization.ConfigDataSet;
 import fuzs.puzzleslib.common.api.core.v1.context.ItemComponentsContext;
 import net.minecraft.core.Holder;

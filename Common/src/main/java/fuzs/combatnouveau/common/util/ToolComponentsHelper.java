@@ -1,4 +1,4 @@
-package fuzs.combatnouveau.common.handler;
+package fuzs.combatnouveau.common.util;
 
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponents;
@@ -13,7 +13,11 @@ import java.util.function.Predicate;
 /**
  * Also used in Golden Age Combat mod.
  */
-public class ToolComponentsHelper {
+public final class ToolComponentsHelper {
+
+    private ToolComponentsHelper() {
+        // NO-OP
+    }
 
     public static boolean isTool(DataComponentGetter components) {
         return isToolOrWeapon(components, 1, 2);
