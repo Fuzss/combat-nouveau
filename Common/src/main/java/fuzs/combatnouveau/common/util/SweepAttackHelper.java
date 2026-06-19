@@ -1,9 +1,6 @@
 package fuzs.combatnouveau.common.util;
 
-import fuzs.combatnouveau.common.CombatNouveau;
-import fuzs.combatnouveau.common.config.ServerConfig;
 import fuzs.combatnouveau.common.services.CommonAbstractions;
-import fuzs.puzzleslib.common.api.item.v2.ToolTypeHelper;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -15,83 +12,82 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.AABB;
-import org.jspecify.annotations.Nullable;
-
-import java.util.List;
 
 public class SweepAttackHelper {
 
-    public static boolean isSweepAttackPossible(Player player) {
-        if (player.getAttackStrengthScale(0.5F) == 1.0F && player.onGround()
-                && player.getKnownMovement().horizontalDistanceSqr() < Mth.square(player.getSpeed() * 2.5F)) {
-            float attackDamage = (float) player.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
-            return attackDamage > 0.0F && isSweepingItem(player);
-        } else {
-            return false;
+    /**
+     * @see Player#attack(Entity)
+     */
+    public static void doSweepAttack(Player player) {
+        float baseDamage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE);
+        ItemStack attackingItemStack = player.getWeaponItem();
+        DamageSource damageSource = player.createAttackSource(attackingItemStack);
+        float attackStrengthScale = player.getAttackStrengthScale(0.5F);
+        baseDamage *= player.baseDamageScaleFactor();
+        if (baseDamage > 0.0F) {
+            boolean fullStrengthAttack = attackStrengthScale > 0.9F;
+            boolean knockbackAttack = player.isSprinting() && fullStrengthAttack;
+            boolean criticalAttack = fullStrengthAttack && player.canCriticalAttack(player);
+            if (player.isSweepAttack(fullStrengthAttack, criticalAttack, knockbackAttack)) {
+                AABB aabb = getSweepAttackAABB(player);
+                doSweepAttack(player, baseDamage, damageSource, attackStrengthScale, aabb);
+                // This also resets the attack ticker.
+                player.swing(InteractionHand.MAIN_HAND);
+                player.causeFoodExhaustion(0.1F);
+            }
         }
     }
 
-    private static boolean isSweepingItem(Player player) {
-        if (CombatNouveau.CONFIG.get(ServerConfig.class).noSweepingWhenSneaking && player.isShiftKeyDown()) {
-            return false;
-        } else if (CombatNouveau.CONFIG.get(ServerConfig.class).requireSweepingEdge) {
-            return player.getAttributeValue(Attributes.SWEEPING_DAMAGE_RATIO) > 0.0F;
-        } else {
-            return ToolTypeHelper.INSTANCE.isSword(player.getItemInHand(InteractionHand.MAIN_HAND));
-        }
+    private static AABB getSweepAttackAABB(Player player) {
+        double moveX = -Mth.sin(player.getYRot() * Mth.DEG_TO_RAD) * 2.0;
+        double moveZ = Mth.cos(player.getYRot() * Mth.DEG_TO_RAD) * 2.0;
+        return CommonAbstractions.INSTANCE.getSweepHitBox(player, player).move(moveX, 0.0, moveZ);
     }
 
-    public static void airSweepAttack(Player player) {
-        double moveX = (double) (-Mth.sin(player.getYRot() * ((float) Math.PI / 180))) * 2.0;
-        double moveZ = (double) Mth.cos(player.getYRot() * ((float) Math.PI / 180)) * 2.0;
-        AABB aABB = CommonAbstractions.INSTANCE.getSweepHitBox(player, player).move(moveX, 0.0, moveZ);
-        float attackDamage = (float) player.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
-        sweepAttack(player, aABB, attackDamage, null);
-        // This also resets the attack ticker.
-        player.swing(InteractionHand.MAIN_HAND);
-    }
-
-    private static void sweepAttack(Player player, AABB aABB, float attackDamage, @Nullable Entity target) {
-        player.level()
-                .playSound(null,
-                        player.getX(),
-                        player.getY(),
-                        player.getZ(),
-                        SoundEvents.PLAYER_ATTACK_SWEEP,
-                        player.getSoundSource(),
-                        1.0f,
-                        1.0f);
+    /**
+     * @see Player#doSweepAttack(Entity, float, DamageSource, float)
+     */
+    private static void doSweepAttack(Player player, float baseDamage, DamageSource damageSource, float attackStrengthScale, AABB aabb) {
+        player.playSound(SoundEvents.PLAYER_ATTACK_SWEEP);
         if (player.level() instanceof ServerLevel serverLevel) {
-            float sweepingAttackDamage =
-                    1.0F + (float) player.getAttributeValue(Attributes.SWEEPING_DAMAGE_RATIO) * attackDamage;
-            List<LivingEntity> list = serverLevel.getEntitiesOfClass(LivingEntity.class, aABB);
-            for (LivingEntity livingEntity : list) {
-                if (livingEntity != player && livingEntity != target && !player.isAlliedTo(livingEntity) && (
-                        !(livingEntity instanceof ArmorStand) || !((ArmorStand) livingEntity).isMarker())
-                        && player.distanceToSqr(livingEntity) < 9.0) {
-                    DamageSource damageSource = player.damageSources().playerAttack(player);
-                    float enchantedDamage = player.getEnchantedDamage(livingEntity, sweepingAttackDamage, damageSource);
-                    if (livingEntity.hurtServer(serverLevel, damageSource, enchantedDamage)) {
-                        livingEntity.knockback(0.4F,
-                                Mth.sin(player.getYRot() * (float) (Math.PI / 180.0)),
-                                -Mth.cos(player.getYRot() * (float) (Math.PI / 180.0)));
-                        EnchantmentHelper.doPostAttackEffects(serverLevel, livingEntity, damageSource);
+            float sweepingDamage =
+                    1.0F + (float) player.getAttributeValue(Attributes.SWEEPING_DAMAGE_RATIO) * baseDamage;
+            for (LivingEntity nearby : serverLevel.getEntitiesOfClass(LivingEntity.class, aabb)) {
+                if (nearby != player && !player.isAlliedTo(nearby)) {
+                    if (nearby instanceof ArmorStand armorStand) {
+                        if (armorStand.isMarker()) {
+                            continue;
+                        }
+                    }
+
+                    if (player.distanceToSqr(nearby) < 9.0) {
+                        float enchantedDamage =
+                                player.getEnchantedDamage(nearby, sweepingDamage, damageSource) * attackStrengthScale;
+                        if (nearby.hurtServer(serverLevel, damageSource, enchantedDamage)) {
+                            nearby.knockback(0.4F,
+                                    Mth.sin(player.getYRot() * Mth.DEG_TO_RAD),
+                                    -Mth.cos(player.getYRot() * Mth.DEG_TO_RAD),
+                                    damageSource,
+                                    enchantedDamage);
+                            EnchantmentHelper.doPostAttackEffects(serverLevel, nearby, damageSource);
+                        }
                     }
                 }
             }
 
-            double offsetX = -Mth.sin(player.getYRot() * ((float) Math.PI / 180F));
-            double offsetZ = Mth.cos(player.getYRot() * ((float) Math.PI / 180F));
+            double dx = -Mth.sin(player.getYRot() * Mth.DEG_TO_RAD);
+            double dz = Mth.cos(player.getYRot() * Mth.DEG_TO_RAD);
             serverLevel.sendParticles(ParticleTypes.SWEEP_ATTACK,
-                    player.getX() + offsetX,
+                    player.getX() + dx,
                     player.getY(0.5F),
-                    player.getZ() + offsetZ,
+                    player.getZ() + dz,
                     0,
-                    offsetX,
+                    dx,
                     0.0F,
-                    offsetZ,
+                    dz,
                     0.0F);
         }
     }

@@ -9,6 +9,11 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
 
+/**
+ * Mimic the same packet which is used in Combat Test snapshots.
+ *
+ * @see net.minecraft.network.protocol.game.ServerboundInteractPacket
+ */
 public record ServerboundSweepAttackMessage(boolean isUsingSecondaryAction) implements ServerboundPlayMessage {
     public static final StreamCodec<ByteBuf, ServerboundSweepAttackMessage> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.BOOL,
@@ -20,13 +25,10 @@ public record ServerboundSweepAttackMessage(boolean isUsingSecondaryAction) impl
         return new MessageListener<Context>() {
             @Override
             public void accept(Context context) {
-                // mimics behavior of ServerboundInteractPacket as that one is used in combat tests
                 ServerPlayer player = context.player();
                 player.setShiftKeyDown(ServerboundSweepAttackMessage.this.isUsingSecondaryAction);
                 if (player.gameMode.getGameModeForPlayer() != GameType.SPECTATOR) {
-                    if (SweepAttackHelper.isSweepAttackPossible(player)) {
-                        SweepAttackHelper.airSweepAttack(player);
-                    }
+                    SweepAttackHelper.doSweepAttack(player);
                 }
             }
         };

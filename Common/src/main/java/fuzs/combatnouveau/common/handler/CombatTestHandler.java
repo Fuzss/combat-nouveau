@@ -63,7 +63,9 @@ public class CombatTestHandler {
             }
             attackingEntity.knockback(knockBackStrength + blockingEntity.getAttributeValue(Attributes.ATTACK_KNOCKBACK),
                     blockingEntity.getX() - attackingEntity.getX(),
-                    blockingEntity.getZ() - attackingEntity.getZ());
+                    blockingEntity.getZ() - attackingEntity.getZ(),
+                    damageSource,
+                    blockedDamage.getAsFloat());
         }
 
         return EventResult.PASS;

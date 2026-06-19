@@ -4,3 +4,7 @@ accessible  method  net/minecraft/world/entity/player/Player    getEnchantedDama
 accessible  method  net/minecraft/server/level/ServerPlayer getEnchantedDamage  (Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/damagesource/DamageSource;)F
 accessible  field   net/minecraft/world/entity/player/Player    lastItemInMainHand  Lnet/minecraft/world/item/ItemStack;
 accessible  method  net/minecraft/client/multiplayer/MultiPlayerGameMode    ensureHasSentCarriedItem    ()V
+accessible	method	net/minecraft/world/entity/player/Player	createAttackSource	(Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/damagesource/DamageSource;
+accessible	method	net/minecraft/world/entity/player/Player	baseDamageScaleFactor	()F
+accessible	method	net/minecraft/world/entity/player/Player	canCriticalAttack	(Lnet/minecraft/world/entity/Entity;)Z
+accessible	method	net/minecraft/world/entity/player/Player	isSweepAttack	(ZZZ)Z

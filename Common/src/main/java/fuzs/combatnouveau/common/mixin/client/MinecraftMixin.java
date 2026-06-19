@@ -3,9 +3,9 @@ package fuzs.combatnouveau.common.mixin.client;
 import fuzs.combatnouveau.common.CombatNouveau;
 import fuzs.combatnouveau.common.client.handler.AutoAttackHandler;
 import fuzs.combatnouveau.common.config.ServerConfig;
-import fuzs.combatnouveau.common.util.SweepAttackHelper;
 import fuzs.combatnouveau.common.network.client.ServerboundSweepAttackMessage;
 import fuzs.combatnouveau.common.network.client.ServerboundSwingArmMessage;
+import fuzs.combatnouveau.common.util.SweepAttackHelper;
 import fuzs.puzzleslib.common.api.network.v4.MessageSender;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -67,12 +67,11 @@ abstract class MinecraftMixin {
         }
 
         if (CombatNouveau.CONFIG.get(ServerConfig.class).airSweepAttack) {
-            if (SweepAttackHelper.isSweepAttackPossible(this.player)) {
-                this.gameMode.ensureHasSentCarriedItem();
-                MessageSender.broadcast(new ServerboundSweepAttackMessage((this.player).isShiftKeyDown()));
-                // possibly blocked by retainEnergyOnMiss option, we want it regardless in case of triggering a sweep attack
-                this.player.resetAttackStrengthTicker();
-            }
+            this.gameMode.ensureHasSentCarriedItem();
+            MessageSender.broadcast(new ServerboundSweepAttackMessage((this.player).isShiftKeyDown()));
+            SweepAttackHelper.doSweepAttack(this.player);
+            // This is blocked by retainEnergyOnMiss option, we want it regardless in case of triggering a sweep attack.
+            this.player.resetAttackStrengthTicker();
         }
     }
 }

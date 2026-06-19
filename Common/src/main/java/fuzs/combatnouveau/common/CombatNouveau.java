@@ -22,7 +22,7 @@ import fuzs.puzzleslib.common.api.event.v1.entity.living.ShieldBlockCallback;
 import fuzs.puzzleslib.common.api.event.v1.entity.player.PlayerTickEvents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +66,7 @@ public class CombatNouveau implements ModConstructor {
     @Override
     public void onRegisterEntityAttributes(EntityAttributesContext context) {
         if (CONFIG.get(CommonConfig.class).doublePlayerAttackStrength) {
-            context.registerAttribute(EntityType.PLAYER, Attributes.ATTACK_DAMAGE, 2.0);
+            context.registerAttribute(EntityTypes.PLAYER, Attributes.ATTACK_DAMAGE, 2.0);
         }
     }
 

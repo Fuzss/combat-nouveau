@@ -16,7 +16,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Slice;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Player.class)
 abstract class PlayerMixin extends LivingEntity {
@@ -58,11 +60,22 @@ abstract class PlayerMixin extends LivingEntity {
                                 target = "Lnet/minecraft/world/entity/player/Player;setSprinting(Z)V"))
     public boolean causeExtraKnockback(Player player, boolean isSprinting) {
         // Don't disable sprinting when attacking a target.
-        // This is mainly nice to have since you always stop to swim when attacking creatures underwater.
+        // This is mainly nice to have since you always stop swimming when attacking creatures underwater.
         if (CombatNouveau.CONFIG.get(ServerConfig.class).sprintAttacks) {
             return false;
         } else {
             return isSprinting;
+        }
+    }
+
+    @Inject(method = "isSweepAttack", at = @At("HEAD"), cancellable = true)
+    public void isSweepAttack(CallbackInfoReturnable<Boolean> callback) {
+        if (!CombatNouveau.CONFIG.get(ServerConfig.class).noSweepingWhenSneaking) {
+            return;
+        }
+
+        if (this.isShiftKeyDown()) {
+            callback.setReturnValue(false);
         }
     }
 
