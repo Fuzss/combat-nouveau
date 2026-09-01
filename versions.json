@@ -6,11 +6,17 @@
     "26.1.x": "maintained",
     "26.2.x": "primary"
   },
-  "properties": {
-    "distributions.curseforge.id": "969425",
-    "distributions.curseforge.slug": "combat-nouveau",
-    "distributions.github.slug": "combat-nouveau",
-    "distributions.modrinth.id": "Iv3kcKZn",
-    "distributions.modrinth.slug": "combat-nouveau"
+  "distributions": {
+    "curseforge": {
+      "id": "969425",
+      "slug": "combat-nouveau"
+    },
+    "github": {
+      "slug": "combat-nouveau"
+    },
+    "modrinth": {
+      "id": "Iv3kcKZn",
+      "slug": "combat-nouveau"
+    }
   }
 }
