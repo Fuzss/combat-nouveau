@@ -6,21 +6,18 @@ import fuzs.combatnouveau.common.config.ServerConfig;
 import fuzs.combatnouveau.common.handler.ClassicCombatHandler;
 import fuzs.combatnouveau.common.handler.CombatTestHandler;
 import fuzs.combatnouveau.common.handler.ItemComponentsHandler;
-import fuzs.combatnouveau.common.init.ModRegistry;
 import fuzs.combatnouveau.common.network.client.ServerboundSweepAttackMessage;
 import fuzs.combatnouveau.common.network.client.ServerboundSwingArmMessage;
 import fuzs.puzzleslib.common.api.config.v3.ConfigHolder;
 import fuzs.puzzleslib.common.api.core.v1.ModConstructor;
 import fuzs.puzzleslib.common.api.core.v1.context.EntityAttributesContext;
 import fuzs.puzzleslib.common.api.core.v1.context.ItemComponentsContext;
-import fuzs.puzzleslib.common.api.core.v1.context.PackRepositorySourcesContext;
 import fuzs.puzzleslib.common.api.core.v1.context.PayloadTypesContext;
 import fuzs.puzzleslib.common.api.event.v1.entity.ProjectileImpactCallback;
 import fuzs.puzzleslib.common.api.event.v1.entity.living.LivingHurtCallback;
 import fuzs.puzzleslib.common.api.event.v1.entity.living.LivingKnockBackCallback;
 import fuzs.puzzleslib.common.api.event.v1.entity.living.ShieldBlockCallback;
 import fuzs.puzzleslib.common.api.event.v1.entity.player.PlayerTickEvents;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -36,11 +33,9 @@ public class CombatNouveau implements ModConstructor {
             .client(ClientConfig.class)
             .common(CommonConfig.class)
             .server(ServerConfig.class);
-    public static final Identifier WEAK_SWEEPING_EDGE_ID = id("weak_sweeping_edge");
 
     @Override
     public void onConstructMod() {
-        ModRegistry.bootstrap();
         registerEventHandlers();
     }
 
@@ -56,11 +51,6 @@ public class CombatNouveau implements ModConstructor {
     public void onRegisterPayloadTypes(PayloadTypesContext context) {
         context.playToServer(ServerboundSweepAttackMessage.class, ServerboundSweepAttackMessage.STREAM_CODEC);
         context.playToServer(ServerboundSwingArmMessage.class, ServerboundSwingArmMessage.STREAM_CODEC);
-    }
-
-    @Override
-    public void onAddDataPackFinders(PackRepositorySourcesContext context) {
-        context.registerBuiltInPack(WEAK_SWEEPING_EDGE_ID, Component.literal("Halve Sweeping Damage"), false);
     }
 
     @Override

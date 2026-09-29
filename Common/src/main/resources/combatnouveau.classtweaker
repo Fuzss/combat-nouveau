@@ -8,3 +8,7 @@ accessible	method	net/minecraft/world/entity/player/Player	createAttackSource	(L
 accessible	method	net/minecraft/world/entity/player/Player	baseDamageScaleFactor	()F
 accessible	method	net/minecraft/world/entity/player/Player	canCriticalAttack	(Lnet/minecraft/world/entity/Entity;)Z
 accessible	method	net/minecraft/world/entity/player/Player	isSweepAttack	(ZZZ)Z
+accessible  field   net/minecraft/world/item/enchantment/Enchantment$Builder    effectMapBuilder    Lnet/minecraft/core/component/DataComponentMap$Builder;
+accessible  method  net/minecraft/world/item/enchantment/Enchantment$Builder    getEffectsList  (Lnet/minecraft/core/component/DataComponentType;)Ljava/util/List;
+accessible  class   net/minecraft/resources/RegistryLoadTask$PendingRegistration
+accessible  method  net/minecraft/resources/RegistryLoadTask$PendingRegistration    <init>  (Lnet/minecraft/resources/ResourceKey;Lcom/mojang/datafixers/util/Either;Lnet/minecraft/core/RegistrationInfo;)V

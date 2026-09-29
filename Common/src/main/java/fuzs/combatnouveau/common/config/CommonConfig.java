@@ -29,6 +29,10 @@ public class CommonConfig implements ConfigCore {
             description = "It only takes 20 ticks to drink liquid foods (such as potions, milk, and bottled liquids) instead of 32 or 40.",
             worldRestart = true)
     public boolean fastDrinking = true;
+    @Config(category = ServerConfig.SWEEPING_CATEGORY,
+            description = "Only apply half the sweeping damage to indirectly hit mobs for better balancing of the sweeping feature.",
+            worldRestart = true)
+    public boolean halfSweepingDamage = false;
     @Config(category = ServerConfig.SHIELD_CATEGORY, description = {
             "Arc of available protection depending on what angle the attack is coming from and where the player is looking (means the lower this angle the closer you need to be facing your attacker).",
             "Vanilla protection arc is 90 degrees, which has been reduced to around 50 in combat tests.",
