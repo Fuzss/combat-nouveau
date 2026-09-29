@@ -36,7 +36,7 @@ public class CombatTestHandler {
         if (CombatNouveau.CONFIG.get(ServerConfig.class).noProjectileImmunity) {
             if (damageSource.is(DamageTypeTags.IS_PROJECTILE)) {
                 // immediately reset damage immunity after being hit by any projectile, fixes multishot
-                livingEntity.invulnerableTime = 0;
+                livingEntity.setInvulnerableTime(0);
             }
         }
 

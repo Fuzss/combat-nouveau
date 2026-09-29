@@ -9,7 +9,7 @@ import fuzs.puzzleslib.common.api.client.core.v1.context.GuiLayersContext;
 import fuzs.puzzleslib.common.api.client.event.v1.ClientTickEvents;
 import fuzs.puzzleslib.common.api.client.event.v1.entity.player.InteractionInputEvents;
 import fuzs.puzzleslib.common.api.client.event.v1.gui.RenderGuiEvents;
-import fuzs.puzzleslib.common.api.client.event.v1.renderer.RenderHandEvents;
+import fuzs.puzzleslib.common.api.client.event.v1.renderer.SubmitArmWithItemCallback;
 
 public class CombatNouveauClient implements ClientModConstructor {
 
@@ -23,7 +23,7 @@ public class CombatNouveauClient implements ClientModConstructor {
         RenderGuiEvents.AFTER.register(ShieldIndicatorHandler::onAfterRenderGui);
         InteractionInputEvents.ATTACK.register(AutoAttackHandler::onAttackInteraction);
         ClientTickEvents.START.register(AutoAttackHandler::onStartTick);
-        RenderHandEvents.OFF_HAND.register(RenderOffhandItemHandler::onRenderOffHand);
+        SubmitArmWithItemCallback.EVENT.register(RenderOffhandItemHandler::onSubmitArmWithItem);
     }
 
     @Override

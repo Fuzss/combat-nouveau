@@ -61,7 +61,9 @@ abstract class MinecraftMixin {
     private void startAttack(CallbackInfoReturnable<Boolean> callback) {
         if (CombatNouveau.CONFIG.get(ServerConfig.class).retainEnergyOnMiss) {
             // finish executing Minecraft::startAttack without calling a reset on the attack strength ticker
-            this.player.swing(InteractionHand.MAIN_HAND, false);
+            this.player.swing(InteractionHand.MAIN_HAND,
+                    this.player.getMainHandItem().getAttackAnimation(),
+                    false);
             MessageSender.broadcast(new ServerboundSwingArmMessage(InteractionHand.MAIN_HAND));
             callback.setReturnValue(false);
         }

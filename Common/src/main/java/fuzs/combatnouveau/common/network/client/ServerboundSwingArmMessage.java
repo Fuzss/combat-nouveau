@@ -18,7 +18,11 @@ public record ServerboundSwingArmMessage(InteractionHand interactionHand) implem
         return new MessageListener<Context>() {
             @Override
             public void accept(Context context) {
-                context.player().swing(ServerboundSwingArmMessage.this.interactionHand, false);
+                context.player().swing(ServerboundSwingArmMessage.this.interactionHand,
+                        context.player()
+                                .getItemInHand(ServerboundSwingArmMessage.this.interactionHand)
+                                .getAttackAnimation(),
+                        false);
             }
         };
     }

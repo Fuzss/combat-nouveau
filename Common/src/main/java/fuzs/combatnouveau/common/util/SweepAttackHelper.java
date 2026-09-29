@@ -35,7 +35,9 @@ public class SweepAttackHelper {
                 AABB aabb = getSweepAttackAABB(player);
                 doSweepAttack(player, baseDamage, damageSource, attackStrengthScale, aabb);
                 // This also resets the attack ticker.
-                player.swing(InteractionHand.MAIN_HAND);
+                player.swing(InteractionHand.MAIN_HAND,
+                        player.getMainHandItem().getAttackAnimation(),
+                        false);
                 player.causeFoodExhaustion(0.1F);
             }
         }

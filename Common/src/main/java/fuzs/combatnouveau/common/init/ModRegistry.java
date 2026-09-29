@@ -1,10 +1,9 @@
 package fuzs.combatnouveau.common.init;
 
 import fuzs.combatnouveau.common.CombatNouveau;
-import fuzs.puzzleslib.common.api.data.v2.AbstractDatapackRegistriesProvider;
+import fuzs.puzzleslib.common.api.init.v3.registry.ContentRegistrationHelper;
 import fuzs.puzzleslib.common.api.init.v3.registry.RegistryManager;
 import net.minecraft.core.HolderGetter;
-import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.Identifier;
@@ -20,8 +19,6 @@ import net.minecraft.world.item.enchantment.LevelBasedValue;
 import net.minecraft.world.item.enchantment.effects.EnchantmentAttributeEffect;
 
 public class ModRegistry {
-    public static final RegistrySetBuilder REGISTRY_SET_BUILDER = new RegistrySetBuilder().add(Registries.ENCHANTMENT,
-            ModRegistry::bootstrapEnchantments);
     static final RegistryManager REGISTRIES = RegistryManager.from(CombatNouveau.MOD_ID);
 
     public static void bootstrap() {
@@ -33,7 +30,7 @@ public class ModRegistry {
      */
     public static void bootstrapEnchantments(BootstrapContext<Enchantment> context) {
         HolderGetter<Item> itemLookup = context.lookup(Registries.ITEM);
-        AbstractDatapackRegistriesProvider.registerEnchantment(context,
+        ContentRegistrationHelper.registerEnchantment(context,
                 Enchantments.SWEEPING_EDGE,
                 Enchantment.enchantment(Enchantment.definition(itemLookup.getOrThrow(ItemTags.SWEEPING_ENCHANTABLE),
                                 2,
