@@ -9,6 +9,6 @@ dependencies {
 multiloader {
     mixins {
         mixin("EntityMixin", "FoodDataMixin", "PlayerMixin", "ProjectileUtilMixin")
-        clientMixin("ItemAttributeModifiers\$Display\$DefaultMixin", "LivingEntityMixin", "MinecraftMixin")
+        clientMixin("LivingEntityMixin", "MinecraftMixin")
     }
 }

@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import fuzs.combatnouveau.common.CombatNouveau;
+import fuzs.combatnouveau.common.config.ClientConfig;
 import fuzs.combatnouveau.common.config.CommonConfig;
 import fuzs.combatnouveau.common.util.ToolComponentsHelper;
 import fuzs.puzzleslib.common.api.config.v3.serialization.ConfigDataSet;
@@ -39,6 +40,14 @@ public class ItemComponentsHandler {
                     .map(ArmorType::getName)
                     .map((String nameValue) -> "armor." + nameValue)
                     .map(Identifier::withDefaultNamespace)).collect(ImmutableSet.toImmutableSet());
+
+    public static boolean isSpecialBaseAttributeModifier(AttributeModifier attributeModifier, double amount) {
+        if (!CombatNouveau.CONFIG.get(ClientConfig.class).specialBaseAttributeModifiers) {
+            return false;
+        }
+
+        return amount != 0.0 && BASE_ATTRIBUTE_MODIFIER_IDS.contains(attributeModifier.id());
+    }
 
     public static void onRegisterItemComponentPatches(ItemComponentsContext context) {
         if (!CombatNouveau.CONFIG.getHolder(CommonConfig.class).isAvailable()) {
