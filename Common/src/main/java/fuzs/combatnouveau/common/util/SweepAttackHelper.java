@@ -19,9 +19,10 @@ import net.minecraft.world.phys.AABB;
 public class SweepAttackHelper {
 
     /**
+     * @return whether a sweep attack was actually performed
      * @see Player#attack(Entity)
      */
-    public static void doSweepAttack(Player player) {
+    public static boolean doSweepAttack(Player player) {
         float baseDamage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE);
         ItemStack attackingItemStack = player.getWeaponItem();
         DamageSource damageSource = player.createAttackSource(attackingItemStack);
@@ -37,8 +38,11 @@ public class SweepAttackHelper {
                 // This also resets the attack ticker.
                 player.swing(InteractionHand.MAIN_HAND);
                 player.causeFoodExhaustion(0.1F);
+                return true;
             }
         }
+
+        return false;
     }
 
     private static AABB getSweepAttackAABB(Player player) {

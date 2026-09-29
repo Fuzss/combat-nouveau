@@ -69,9 +69,11 @@ abstract class MinecraftMixin {
         if (CombatNouveau.CONFIG.get(ServerConfig.class).airSweepAttack) {
             this.gameMode.ensureHasSentCarriedItem();
             MessageSender.broadcast(new ServerboundSweepAttackMessage((this.player).isShiftKeyDown()));
-            SweepAttackHelper.doSweepAttack(this.player);
-            // This is blocked by retainEnergyOnMiss option, we want it regardless in case of triggering a sweep attack.
-            this.player.resetAttackStrengthTicker();
+            // Only reset the attack ticker when a sweep attack was actually triggered, so that the
+            // retainEnergyOnMiss option is not overridden for regular misses.
+            if (SweepAttackHelper.doSweepAttack(this.player)) {
+                this.player.resetAttackStrengthTicker();
+            }
         }
     }
 }
