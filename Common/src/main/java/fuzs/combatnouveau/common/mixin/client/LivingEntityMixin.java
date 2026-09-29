@@ -18,7 +18,7 @@ abstract class LivingEntityMixin extends Entity {
         super(entityType, level);
     }
 
-    @Inject(method = "getSwingAnimation", at = @At("TAIL"), cancellable = true)
+    @Inject(method = "getSwingAnimation", at = @At("HEAD"), cancellable = true)
     public void getSwingAnimation(float partialTicks, CallbackInfoReturnable<Float> callback) {
         if (!CombatNouveau.CONFIG.get(ClientConfig.class).alternativeSwingAnimation) {
             return;
